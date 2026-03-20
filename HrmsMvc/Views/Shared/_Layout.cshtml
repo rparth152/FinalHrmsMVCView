@@ -1,0 +1,608 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Pulse360</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/HrmsMvc.styles.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- ══════════════════════════════════════════
+         SIDEBAR — rendered based on user role
+    ══════════════════════════════════════════ -->
+    <aside class="sidebar" id="mainSidebar">
+        <a class="sidebar-logo" href="/">
+            <span class="logo-text">Pulse<span class="logo-accent">360</span></span>
+        </a>
+
+        <div class="sidebar-section-label">Main Menu</div>
+
+        <nav style="flex:1; padding: 4px 0;">
+
+            @* ─────────────────────────────────────────────────
+   ADMIN SIDEBAR
+   ───────────────────────────────────────────────── *@
+            @* @if (User.IsInRole("Admin")) *@
+            @* { *@
+                <!-- Dashboard -->
+                <a class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active-parent" : "")"
+                   href="/Dashboard">
+                    <i class="fa-solid fa-house nav-icon"></i>
+                    <span class="nav-label">Dashboard</span>
+                    <span class="badge-hot">Hot</span>
+                </a>
+
+                <!-- Employees -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString()?.StartsWith("Employee") == true ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-users nav-icon"></i>
+                        <span class="nav-label">Employees</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString()?.StartsWith("Employee") == true ? "open" : "")">
+                        <li><a asp-controller="Employee" asp-action="Index" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">All Employees</a></li>
+                        <li><a asp-controller="Employee" asp-action="Create">Add Employee</a></li>
+                        <li><a asp-controller="Department" asp-action="Index">Departments</a></li>
+                        <li><a asp-controller="Designation" asp-action="Index">Designations</a></li>
+                    </ul>
+                </div>
+
+                <!-- Events -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Event" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-calendar-days nav-icon"></i>
+                        <span class="nav-label">Events</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Event" ? "open" : "")">
+                        <li><a asp-controller="Event" asp-action="Index">All Events</a></li>
+                        <li><a asp-controller="Event" asp-action="Create">Add Event</a></li>
+                    </ul>
+                </div>
+
+                <!-- Training -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Training" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-chalkboard-user nav-icon"></i>
+                        <span class="nav-label">Training</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Training" ? "open" : "")">
+                        <li><a asp-controller="Training" asp-action="Index">All Trainings</a></li>
+                        <li><a asp-controller="Training" asp-action="Create">Add Training</a></li>
+                    </ul>
+                </div>
+
+                <!-- Performance & Goal -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Performance" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-chart-line nav-icon"></i>
+                        <span class="nav-label">Performance &amp; Goal</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Performance" ? "open" : "")">
+                        <li><a asp-controller="Performance" asp-action="Index">Overview</a></li>
+                        <li><a asp-controller="Goal" asp-action="Index">Goals</a></li>
+                    </ul>
+                </div>
+
+                <!-- Master Documents -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "MasterDocument" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-folder-open nav-icon"></i>
+                        <span class="nav-label">Master Documents</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "MasterDocument" ? "open" : "")">
+                        <li><a asp-controller="MasterDocument" asp-action="Index">All Documents</a></li>
+                        <li><a asp-controller="MasterDocument" asp-action="Create">Add Document</a></li>
+                    </ul>
+                </div>
+
+                <!-- Documents -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Document" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-regular fa-file nav-icon"></i>
+                        <span class="nav-label">Documents</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Document" ? "open" : "")">
+                        <li><a asp-controller="Document" asp-action="Index">All Documents</a></li>
+                        <li><a asp-controller="Document" asp-action="Create">Upload Document</a></li>
+                    </ul>
+                </div>
+
+                <!-- Projects -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Project" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-diagram-project nav-icon"></i>
+                        <span class="nav-label">Projects</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Project" ? "open" : "")">
+                        <li><a asp-controller="Project" asp-action="Index">Project</a></li>
+                        <li><a asp-controller="Task" asp-action="Index">Task</a></li>
+                        <li><a asp-controller="Task" asp-action="Board">TaskBoard</a></li>
+                    </ul>
+                </div>
+
+                <!-- Reports -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Report" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-file-chart-column nav-icon"></i>
+                        <span class="nav-label">Reports</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Report" ? "open" : "")">
+                        <li><a asp-controller="Report" asp-action="Index">All Reports</a></li>
+                        <li><a asp-controller="Report" asp-action="Employee">Employee Report</a></li>
+                        <li><a asp-controller="Report" asp-action="Attendance">Attendance Report</a></li>
+                    </ul>
+                </div>
+
+                <!-- Attendance -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Attendance" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-clock nav-icon"></i>
+                        <span class="nav-label">Attendance</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Attendance" ? "open" : "")">
+                        <li><a asp-controller="Attendance" asp-action="Index">Overview</a></li>
+                        <li><a asp-controller="Attendance" asp-action="Daily">Daily Log</a></li>
+                        <li><a asp-controller="Leave" asp-action="Index">Leave</a></li>
+                    </ul>
+                </div>
+
+                <!-- Payroll -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Payroll" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-money-bill-wave nav-icon"></i>
+                        <span class="nav-label">Payroll</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Payroll" ? "open" : "")">
+                        <li><a asp-controller="Payroll" asp-action="Index">Payroll List</a></li>
+                        <li><a asp-controller="Payroll" asp-action="Generate">Generate Payroll</a></li>
+                        <li><a asp-controller="Payroll" asp-action="Slip">Pay Slips</a></li>
+                    </ul>
+                </div>
+
+                <!-- Promotion -->
+                <a class="nav-single @(ViewContext.RouteData.Values["controller"]?.ToString() == "Promotion" ? "active" : "")"
+                   asp-controller="Promotion" asp-action="Index">
+                    <i class="fa-solid fa-arrow-up-right-dots nav-icon"></i>
+                    <span class="nav-label">Promotion</span>
+                </a>
+
+                <!-- Resignation -->
+                <a class="nav-single @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resignation" ? "active" : "")"
+                   asp-controller="Resignation" asp-action="Index">
+                    <i class="fa-solid fa-right-from-bracket nav-icon"></i>
+                    <span class="nav-label">Resignation</span>
+                </a>
+
+                <!-- Termination -->
+                <a class="nav-single @(ViewContext.RouteData.Values["controller"]?.ToString() == "Termination" ? "active" : "")"
+                   asp-controller="Termination" asp-action="Index">
+                    <i class="fa-solid fa-user-xmark nav-icon"></i>
+                    <span class="nav-label">Termination</span>
+                </a>
+
+                <!-- Help & Supports -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Help" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-circle-question nav-icon"></i>
+                        <span class="nav-label">Help &amp; Supports</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Help" ? "open" : "")">
+                        <li><a asp-controller="Help" asp-action="Index">FAQ</a></li>
+                        <li><a asp-controller="Help" asp-action="Contact">Contact Support</a></li>
+                    </ul>
+                </div>
+
+                <!-- Tickets -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Ticket" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-ticket nav-icon"></i>
+                        <span class="nav-label">Tickets</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Ticket" ? "open" : "")">
+                        <li><a asp-controller="Ticket" asp-action="Index">All Tickets</a></li>
+                        <li><a asp-controller="Ticket" asp-action="Create">Create Ticket</a></li>
+                    </ul>
+                </div>
+
+                <span style="background:#ef4444;color:#fff;font-size:10px;
+                         font-weight:700;padding:2px 8px;border-radius:4px;">
+                    ADMIN
+                </span>
+            @* } *@
+
+            
+            @* ─────────────────────────────────────────────────
+   MANAGER SIDEBAR
+   ───────────────────────────────────────────────── *@
+            @* else if (User.IsInRole("Manager")) *@
+            @* { *@
+                <!-- Dashboard -->
+                <a class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active-parent" : "")"
+                   href="/Dashboard">
+                    <i class="fa-solid fa-house nav-icon"></i>
+                    <span class="nav-label">Dashboard</span>
+                    <span class="badge-hot">Hot</span>
+                </a>
+
+                <!-- Employees -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString()?.StartsWith("Employee") == true ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-users nav-icon"></i>
+                        <span class="nav-label">Employees</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString()?.StartsWith("Employee") == true ? "open" : "")">
+                        <li><a asp-controller="Employee" asp-action="Index">All Employees</a></li>
+                    </ul>
+                </div>
+
+                <!-- Attendance -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Attendance" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-clock nav-icon"></i>
+                        <span class="nav-label">Attendance</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Attendance" ? "open" : "")">
+                        <li><a asp-controller="Attendance" asp-action="Index">Overview</a></li>
+                        <li><a asp-controller="Attendance" asp-action="Daily">Daily Log</a></li>
+                    </ul>
+                </div>
+
+                <!-- Payroll -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Payroll" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-money-bill-wave nav-icon"></i>
+                        <span class="nav-label">Payroll</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Payroll" ? "open" : "")">
+                        <li><a asp-controller="Payroll" asp-action="Index">Payroll List</a></li>
+                    </ul>
+                </div>
+
+                <!-- Calender -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Calendar" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-calendar nav-icon"></i>
+                        <span class="nav-label">Calender</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Calendar" ? "open" : "")">
+                        <li><a asp-controller="Calendar" asp-action="Index">View Calendar</a></li>
+                    </ul>
+                </div>
+
+                <!-- Projects -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Project" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-diagram-project nav-icon"></i>
+                        <span class="nav-label">Projects</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Project" ? "open" : "")">
+                        <li><a asp-controller="Project" asp-action="Index">Project</a></li>
+                        <li><a asp-controller="Task" asp-action="Index">Task</a></li>
+                        <li><a asp-controller="Task" asp-action="Board">TaskBoard</a></li>
+                    </ul>
+                </div>
+
+                <!-- Leave -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Leave" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-calendar-minus nav-icon"></i>
+                        <span class="nav-label">Leave</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Leave" ? "open" : "")">
+                        <li><a asp-controller="Leave" asp-action="Index">Leave List</a></li>
+                        <li><a asp-controller="Leave" asp-action="Approve">Approve Leave</a></li>
+                    </ul>
+                </div>
+
+                <!-- Tickets -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Ticket" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-ticket nav-icon"></i>
+                        <span class="nav-label">Tickets</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Ticket" ? "open" : "")">
+                        <li><a asp-controller="Ticket" asp-action="Index">All Tickets</a></li>
+                        <li><a asp-controller="Ticket" asp-action="Create">Create Ticket</a></li>
+                    </ul>
+                </div>
+
+            <span style="background:#f59e0b;color:#fff;font-size:10px;
+                     font-weight:700;padding:2px 8px;border-radius:4px;">
+                MANAGER
+            </span>
+
+            @* } *@
+
+           
+
+            @* ─────────────────────────────────────────────────
+   EMPLOYEE SIDEBAR
+   ───────────────────────────────────────────────── *@
+            @* else *@
+            @* { *@
+                <!-- Dashboard -->
+                <a class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active-parent" : "")"
+                   href="/Dashboard">
+                    <i class="fa-solid fa-house nav-icon"></i>
+                    <span class="nav-label">Dashboard</span>
+                    <span class="badge-hot">Hot</span>
+                </a>
+
+                <!-- Employees -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString()?.StartsWith("Employee") == true ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-users nav-icon"></i>
+                        <span class="nav-label">Employees</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString()?.StartsWith("Employee") == true ? "open" : "")">
+                        <li><a asp-controller="Employee" asp-action="Profile">My Profile</a></li>
+                    </ul>
+                </div>
+
+                <!-- Attendance -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Attendance" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-clock nav-icon"></i>
+                        <span class="nav-label">Attendance</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Attendance" ? "open" : "")">
+                        <li><a asp-controller="Attendance" asp-action="My">My Attendance</a></li>
+                    </ul>
+                </div>
+
+                <!-- Payroll -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Payroll" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-money-bill-wave nav-icon"></i>
+                        <span class="nav-label">Payroll</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Payroll" ? "open" : "")">
+                        <li><a asp-controller="Payroll" asp-action="MySlips">My Pay Slips</a></li>
+                    </ul>
+                </div>
+
+                <!-- Calender -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Calendar" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-calendar nav-icon"></i>
+                        <span class="nav-label">Calender</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Calendar" ? "open" : "")">
+                        <li><a asp-controller="Calendar" asp-action="Index">View Calendar</a></li>
+                    </ul>
+                </div>
+
+                <!-- Performance -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Performance" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-chart-line nav-icon"></i>
+                        <span class="nav-label">Performance</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Performance" ? "open" : "")">
+                        <li><a asp-controller="Performance" asp-action="My">My Performance</a></li>
+                    </ul>
+                </div>
+
+                <!-- Documents -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Document" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-regular fa-file nav-icon"></i>
+                        <span class="nav-label">Documents</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Document" ? "open" : "")">
+                        <li><a asp-controller="Document" asp-action="My">My Documents</a></li>
+                    </ul>
+                </div>
+
+                <!-- Help & Supports -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Help" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-circle-question nav-icon"></i>
+                        <span class="nav-label">Help &amp; Supports</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Help" ? "open" : "")">
+                        <li><a asp-controller="Help" asp-action="Index">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <!-- Tickets -->
+                <div class="nav-group">
+                    <button class="nav-group-toggle @(ViewContext.RouteData.Values["controller"]?.ToString() == "Ticket" ? "active-parent open" : "")"
+                            onclick="toggleNav(this)">
+                        <i class="fa-solid fa-ticket nav-icon"></i>
+                        <span class="nav-label">Tickets</span>
+                        <i class="fa-solid fa-chevron-down nav-arrow"></i>
+                    </button>
+                    <ul class="nav-sub @(ViewContext.RouteData.Values["controller"]?.ToString() == "Ticket" ? "open" : "")">
+                        <li><a asp-controller="Ticket" asp-action="Index">My Tickets</a></li>
+                        <li><a asp-controller="Ticket" asp-action="Create">Create Ticket</a></li>
+                    </ul>
+                </div>
+
+            <span style="background:#22c55e;color:#fff;font-size:10px;
+                     font-weight:700;padding:2px 8px;border-radius:4px;">
+                EMPLOYEE
+            </span>
+
+            @* } *@
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <form asp-controller="Account" asp-action="Logout" method="post">
+                <button type="submit" class="logout-btn">
+                    <i class="fa-solid fa-power-off"></i>
+                    <span>Logout</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    
+
+    <!-- ══════════════════════════════════════════
+         TOP NAVBAR — common for every page
+    ══════════════════════════════════════════ -->
+    <div class="topbar" id="topbar">
+        <!-- Collapse toggle (desktop) / hamburger (mobile) -->
+        <button class="topbar-collapse-btn d-none d-md-flex" id="sidebarToggleDesktop" onclick="toggleSidebarDesktop()" title="Toggle Sidebar">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <button class="topbar-collapse-btn d-flex d-md-none" onclick="openSidebar()" title="Menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <!-- Search -->
+        <div class="topbar-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="globalSearch" placeholder="Search in Pulse360" autocomplete="off" />
+            <span class="topbar-shortcut">CTRL + /</span>
+        </div>
+
+        <!-- Grid / Apps button -->
+        <a class="topbar-icon-btn" href="#" title="Apps">
+            <i class="fa-solid fa-grip"></i>
+        </a>
+
+        <!-- Settings -->
+        <a class="topbar-icon-btn" asp-controller="Settings" asp-action="Index" title="Settings">
+            <i class="fa-solid fa-gear"></i>
+        </a>
+
+        <div class="topbar-spacer"></div>
+
+        <!-- Reload -->
+        <button class="topbar-reload" onclick="window.location.reload()" title="Refresh">
+            <i class="fa-solid fa-arrows-rotate"></i>
+        </button>
+
+        <!-- Avatar / Profile -->
+        <div class="topbar-avatar" title="@User.Identity?.Name">
+            @{
+                var initials = User.Identity?.Name?.Length > 0
+                ? User.Identity.Name.Substring(0, 1).ToUpper()
+                : "U";
+            }
+            @initials
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         MAIN CONTENT AREA
+    ══════════════════════════════════════════ -->
+    <div class="main-wrapper">
+        @RenderBody()
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        // ── Sidebar accordion toggle ──────────────────
+        function toggleNav(btn) {
+            const isOpen = btn.classList.contains('open');
+            // Close all open groups
+            document.querySelectorAll('.nav-group-toggle.open').forEach(b => {
+                b.classList.remove('open');
+                b.nextElementSibling?.classList.remove('open');
+            });
+            if (!isOpen) {
+                btn.classList.add('open');
+                btn.nextElementSibling?.classList.add('open');
+            }
+        }
+
+        // ── Desktop sidebar collapse ──────────────────
+        function toggleSidebarDesktop() {
+            document.body.classList.toggle('sidebar-collapsed');
+            localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed'));
+        }
+
+        // Restore collapse state on load
+        if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            document.body.classList.add('sidebar-collapsed');
+        }
+
+        // ── Mobile sidebar ────────────────────────────
+        function openSidebar() {
+            document.body.classList.add('sidebar-open');
+        }
+
+        function closeSidebar() {
+            document.body.classList.remove('sidebar-open');
+        }
+
+        // ── Keyboard shortcut CTRL+/ for search ──────
+        document.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+                e.preventDefault();
+                document.getElementById('globalSearch')?.focus();
+            }
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
