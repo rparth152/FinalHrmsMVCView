@@ -27,21 +27,21 @@ namespace HrmsMvc.Controllers
             }
             return View(empobj);
         }
-        public IActionResult FEmp()
-        {
-            var empobj = new FEmpDTO();
-            string url = "https://localhost:7247/api/Reports/fetchemp";
-            HttpResponseMessage res = client.GetAsync(url).Result;
-            if (res.IsSuccessStatusCode)
-            {
-                var json = res.Content.ReadAsStringAsync().Result;
-                var obj = JsonConvert.DeserializeObject<FEmpDTO>(json);
-                if (obj != null)
-                {
-                    empobj = obj;
-                }
-            }
-            return View(empobj);
-        }
+        //public IActionResult FEmp()
+        //{
+        //    var empobj = new EstatusDTO();
+        //    string url = "https://localhost:7247/api/Reports/fetchemp";
+        //    HttpResponseMessage res = client.GetAsync(url).Result;
+        //    if (res.IsSuccessStatusCode)
+        //    {
+        //        var json = res.Content.ReadAsStringAsync().Result;
+        //        var obj = JsonConvert.DeserializeObject<EstatusDTO>(json);
+        //        if (obj != null)
+        //        {
+        //            empobj = obj;
+        //        }
+        //    }
+        //    return View(empobj);
+        //}
     }
 }
