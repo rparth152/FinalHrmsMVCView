@@ -51,30 +51,33 @@
         }
     });
 </script>
-@* <table class="table"> *@
-@*     <thead> *@
-@*         <tr> *@
-@*             <th>#</th> *@
-@*             <th>First Name</th> *@
-@*             <th>Last Name</th> *@
-@*             <th>Email</th> *@
-@*             <th>Joining Date</th> *@
-@*             <th>Gender</th> *@
-@*             <th>Status</th> *@
-@*         </tr> *@
-@*     </thead> *@
-@*     <tbody> *@
-@*         @foreach (var emp in Model) *@
-@*         { *@
-@*             <tr> *@
-@*                 <td>@emp.EmployeeId</td> *@
-@*                 <td>@emp.FirstName</td> *@
-@*                 <td>@emp.LastName</td> *@
-@*                 <td>@emp.Email</td> *@
-@*                 <td>@emp.JoiningDate.ToString("dd-MM-yyyy")</td> *@
-@*                 <td>@emp.Gender</td> *@
-@*                 <td>@emp.Status</td> *@
-@*             </tr> *@
-@*         } *@
-@*     </tbody> *@
-@* </table> *@
+@{
+    var empData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<EmpDTO>>(TempData["EmpObj"]?.ToString());
+}
+ <table class="table"> 
+     <thead> 
+        <tr> 
+             <th></th> 
+             <th>First Name</th> 
+             <th>Last Name</th> 
+             <th>Email</th> 
+            <th>Joining Date</th> 
+             <th>Gender</th> 
+             <th>Status</th> 
+         </tr> 
+     </thead> 
+     <tbody>
+        @foreach (var emp in empData)
+        {
+            <tr> 
+                <td>@emp.EmployeeId</td> 
+                 <td>@emp.FirstName</td> 
+                 <td>@emp.LastName</td> 
+                 <td>@emp.Email</td> 
+                 <td>@emp.JoiningDate.ToString("dd-MM-yyyy")</td> 
+                 <td>@emp.Gender</td> 
+                 <td>@emp.Status</td> 
+             </tr> 
+         } 
+     </tbody> 
+ </table> 
