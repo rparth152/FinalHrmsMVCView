@@ -1,4 +1,5 @@
 ﻿using HrmsMvc.Models;
+using HrmsMvc.services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -20,7 +21,8 @@ namespace HrmsMvc.Controllers
             HttpResponseMessage res = client.GetAsync(url).Result;
             if (res.IsSuccessStatusCode) { 
                 var json= res.Content.ReadAsStringAsync().Result;
-                var obj = JsonConvert.DeserializeObject<EstatusDTO>(json);
+                var result = JsonConvert.DeserializeObject<ApiResponse<EstatusDTO>>(json);
+                var obj = result?.Data;
                 if (obj != null) {
                     empobj = obj;
                 }
